@@ -4,46 +4,91 @@ import { has } from "lodash";
 import ContactListItem from "../../models/ContactListItem";
 import CheckContactNumber from "../WbotServices/CheckNumber";
 import { logger } from "../../utils/logger";
-// import CheckContactNumber from "../WbotServices/CheckNumber";
+import fs from "fs";
 
 export async function ImportContacts(
   contactListId: number,
   companyId: number,
   file: Express.Multer.File | undefined
 ) {
-  const workbook = XLSX.readFile(file?.path as string);
-  const worksheet = head(Object.values(workbook.Sheets)) as any;
-  const rows: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 0 });
-  const contacts = rows.map(row => {
-    let name = "";
-    let number = "";
-    let email = "";
+  let contacts = [];
 
-    if (has(row, "nome") || has(row, "Nome")) {
-      name = row["nome"] || row["Nome"];
-    }
+  if (file?.path.endsWith('.csv')) {
+    // Processar CSV
+    const fileContent = fs.readFileSync(file.path, 'utf-8');
+    const lines = fileContent.split('\n').filter(line => line.trim());
+    const headers = lines[0].split(';').map(h => h.trim());
+    
+    contacts = lines.slice(1).map(line => {
+      const values = line.split(';').map(v => v.trim());
+      const row = headers.reduce((obj, header, index) => {
+        obj[header.toLowerCase()] = values[index] || '';
+        return obj;
+      }, {} as any);
 
-    if (
-      has(row, "numero") ||
-      has(row, "número") ||
-      has(row, "Numero") ||
-      has(row, "Número")
-    ) {
-      number = row["numero"] || row["número"] || row["Numero"] || row["Número"];
-      number = `${number}`.replace(/\D/g, "");
-    }
+      let name = "";
+      let number = "";
+      let email = "";
 
-    if (
-      has(row, "email") ||
-      has(row, "e-mail") ||
-      has(row, "Email") ||
-      has(row, "E-mail")
-    ) {
-      email = row["email"] || row["e-mail"] || row["Email"] || row["E-mail"];
-    }
+      if (has(row, "nome") || has(row, "name")) {
+        name = row["nome"] || row["name"];
+      }
 
-    return { name, number, email, contactListId, companyId };
-  });
+      if (
+        has(row, "numero") ||
+        has(row, "número") ||
+        has(row, "number") ||
+        has(row, "telefone")
+      ) {
+        number = row["numero"] || row["número"] || row["number"] || row["telefone"];
+        number = `${number}`.replace(/\D/g, "");
+      }
+
+      if (
+        has(row, "email") ||
+        has(row, "e-mail")
+      ) {
+        email = row["email"] || row["e-mail"];
+      }
+
+      return { name, number, email, contactListId, companyId };
+    });
+  } else {
+    // Processar XLSX
+    const workbook = XLSX.readFile(file?.path as string);
+    const worksheet = head(Object.values(workbook.Sheets)) as any;
+    const rows: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 0 });
+    contacts = rows.map(row => {
+      let name = "";
+      let number = "";
+      let email = "";
+
+      if (has(row, "nome") || has(row, "Nome")) {
+        name = row["nome"] || row["Nome"];
+      }
+
+      if (
+        has(row, "numero") ||
+        has(row, "número") ||
+        has(row, "Numero") ||
+        has(row, "Número")
+      ) {
+        number = row["numero"] || row["número"] || row["Numero"] || row["Número"];
+        number = `${number}`.replace(/\D/g, "");
+      }
+
+      if (
+        has(row, "email") ||
+        has(row, "e-mail") ||
+        has(row, "Email") ||
+        has(row, "E-mail")
+      ) {
+        email = row["email"] || row["e-mail"] || row["Email"] || row["E-mail"];
+      }
+
+      return { name, number, email, contactListId, companyId };
+    });
+  }
 
   const contactList: ContactListItem[] = [];
 

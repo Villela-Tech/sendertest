@@ -42,7 +42,7 @@ import { Can } from "../../components/Can";
 import useContactLists from "../../hooks/useContactLists";
 import { Grid } from "@material-ui/core";
 
-import planilhaExemplo from "../../assets/planilha.xlsx";
+import planilhaExemplo from "../../assets/planilha.csv";
 import { SocketContext } from "../../context/Socket/SocketContext";
 
 const reducer = (state, action) => {
@@ -276,7 +276,7 @@ const ContactListItems = () => {
         ) : (
           <>
             {i18n.t("contactListItems.confirmationModal.importMessage")}
-            <a href={planilhaExemplo} download="planilha.xlsx">
+            <a href={planilhaExemplo} download="planilha.csv">
               Clique aqui para baixar planilha exemplo.
             </a>
           </>
@@ -353,7 +353,7 @@ const ContactListItems = () => {
             id="upload"
             name="file"
             type="file"
-            accept=".xls,.xlsx"
+            accept=".csv"
             onChange={() => {
               setConfirmOpen(true);
             }}

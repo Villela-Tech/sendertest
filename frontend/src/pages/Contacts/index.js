@@ -433,20 +433,29 @@ function getDateLastMessage(contact) {
 										{i18n.t("contacts.buttons.importSheet")}
 									</MenuItem>
                                     <MenuItem>
-                        
-									<CSVLink style={{ textDecoration:'none' }} separator=";" filename={'whaticket.csv'} 
-									data={contacts.map((contact) => ({ name: contact.name, number: contact.number, email: contact.email }))}>
-                                        
-                                        <CloudDownload fontSize="small"
-                                            color="primary"
-                                            style={{
-                                                marginRight: 10,
-                                            
+                                        <CSVLink 
+                                            style={{ textDecoration:'none' }} 
+                                            separator=";" 
+                                            filename={'contatos.csv'} 
+                                            headers={[
+                                                { label: "Nome", key: "name" },
+                                                { label: "Número", key: "number" },
+                                                { label: "Email", key: "email" }
+                                            ]}
+                                            data={contacts.map((contact) => ({ 
+                                                name: contact.name, 
+                                                number: contact.number, 
+                                                email: contact.email 
+                                            }))}
+                                        >
+                                            <CloudDownload fontSize="small"
+                                                color="primary"
+                                                style={{
+                                                    marginRight: 10,
                                                 }}                                                
-                                        />        
-                                        Exportar Excel                                
-                                   </CSVLink>
-                                        
+                                            />        
+                                            Exportar CSV                               
+                                        </CSVLink>
                                     </MenuItem>
                                 </Menu>
                             </React.Fragment>
@@ -474,7 +483,7 @@ function getDateLastMessage(contact) {
               id="upload"
               name="file"
               type="file"
-              accept=".xls,.xlsx"
+              accept=".csv"
               onChange={() => {
                 setConfirmOpen(true);
               }}
